@@ -72,7 +72,7 @@
 						var self = this
 						this.$http.get('http://irobot.0707app.com/robot/tofindDetail', {
 							params: {
-								id: this.$route.query.id
+								id: this.currentBranch
 							}
 						}).then(function(res) {
 							self.commits = res.body.imgRobotList;
