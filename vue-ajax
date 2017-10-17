@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<style type="text/css">
+			#demo {
+				font-family: 'Helvetica', Arial, sans-serif;
+			}
+			
+			a {
+				text-decoration: none;
+				color: #f66;
+			}
+			
+			li {
+				line-height: 1.5em;
+				margin-bottom: 20px;
+			}
+			
+			.author,
+			.date {
+				font-weight: bold;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="demo">
+			<input type="button" @click="change()" value="按钮">
+			<h1>Latest Vue.js Commits</h1>
+			<template v-for="branch in branches">
+				<input type="radio" :id="branch" :value="branch" name="branch" v-model="currentBranch">
+				<label :for="branch">{{ branch }}</label>
+			</template>
+			<p>robot id: {{ currentBranch }}</p>
+			<ul>
+				<li v-for="record in commits">
+					<a :href="record.imgRoute" target="_blank" class="commit">{{ record.imgRoute }}</a>
+					- <span class="message">{{ record.robot.name | truncate }}</span>
+				</li>
+			</ul>
+		</div>
+		<script src="http://unpkg.com/vue/dist/vue.js"></script>
+		<script src="https://cdn.jsdelivr.net/vue.resource/1.0.3/vue-resource.min.js"></script>
+		<script type="text/javascript">
+			/**
+			 * Actual demo
+			 */
+			var demo = new Vue({
+				el: '#demo',
+				data: { //原始数据
+					branches: ['3', '4'],
+					currentBranch: '3',
+					commits: null
+				},
+				created: function() { //初始化执行
+					this.fetchData()
+				},
+				watch: { //监听数据变化
+					currentBranch: 'fetchData'
+				},
+				filters: { //过滤器处理数据
+					truncate: function(v) {
+						var newline = v.indexOf('\n')
+						return newline > 0 ? v.slice(0, newline) : v
+					}
+				},
+				methods: { //初始化方法
+					fetchData: function() {
+						var self = this
+						this.$http.get('http://irobot.0707app.com/robot/tofindDetail', {
+							params: {
+								id: this.$route.query.id
+							}
+						}).then(function(res) {
+							self.commits = res.body.imgRobotList;
+						}, function() {
+							console.log('请求失败处理');
+						});
+					},
+					change: function() {
+						this.currentBranch = 1;
+					}
+				}
+			})
+		</script>
+	</body>
+
+</html>
