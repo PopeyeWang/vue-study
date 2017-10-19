@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="keywords" content="机器人" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+		<title>详情</title>
+		<script>
+			var html = document.documentElement;
+			var w = window.outerWidth || screen.width;
+			if(w > 750) {
+				w = '750'
+			};
+			var fontSize = w / 16 + 'px';
+			html.style.fontSize = fontSize;
+		</script>
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<link rel="stylesheet" type="text/css" href="../css/details.css" />
+		<link href="https://cdn.bootcss.com/Swiper/4.0.1/css/swiper.min.css" rel="stylesheet">
+		<style type="text/css">
+			.wrap div {
+				width: 300px;
+				height: 30px;
+				background-color: #0cc;
+			}
+			
+			.active {
+				background-color: red
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="detail">
+			<router-view></router-view>
+		</div>
+
+		<!-- 模板抽离出来 -->
+		<template id="robot">
+			<div v-if="robot" class="robot_con">
+				<div class="robot_con_top swiper-container">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide" v-for="slide in imgList" :style="{ backgroundImage: 'url(http://irobot.0707app.com' + slide.imgRoute + ')' }"></div>
+					</div>
+					<div class="swiper-pagination swiper-pagination-white"></div>
+				</div>
+				<div class="robot_con_num clear">
+					<div class="robot_num">{{robot.name}}</div>
+					<div class="robot_price">{{robot.price | priceAddDelimiter}} 元</div>
+				</div>
+				<div class="robot_con_apply">
+					<div class="robot_con_apply_title">
+						<b>主要应用</b><span>{{robot.classification.name}}</span>
+					</div>
+					<div class="robot_con_apply_introduce">{{robot.synopsis}}</div>
+				</div>
+
+				<div class="robot_con_shop clear">
+					<router-link :to="'/shop/'+robot.shop.id">
+						<div class="robot_con_shop_head">
+							<img :src="robot.shop.imgPhoto | pictureUrl">
+						</div>
+						<div class="robot_con_shop_name">
+							<div class="robot_con_shop_name_top">{{robot.shop.name}}</div>
+							<div class="robot_con_shop_name_bottom">{{robot.shop.address}}</div>
+						</div>
+						<div class="robot_con_shop_to">
+							店铺
+							<img src="../img/to.png" />
+						</div>
+					</router-link>
+				</div>
+				<div class="robot_con_parameter">
+					<div class="robot_con_parameter_title clear">
+						<hr /><span>机器人参数</span>
+						<hr />
+					</div>
+					<div class="robot_con_parameter_tab">
+						<div class="robot_con_parameter_tab_mue clear">
+							<button v-for="(ind,key,index) in btn" class="robot_con_parameter_tab_mue_list" v-bind:class="{active:(indexs==index)}" v-on:click="tab(index)">{{ind}}</button>
+						</div>
+						<div class="robot_con_parameter_tab_items">
+							<div v-if="indexs == 0" class="robot_con_parameter_tab_item clear">
+								<ul>
+									<li>
+										<div>重量：{{robot.weight}}kg</div>
+									</li>
+									<li>
+										<div>工作区域：{{robot.workArea}}mm</div>
+									</li>
+									<li v-for="p in parametersList">
+										<div>{{p.parametersName}}：{{p.parameterNumber}}{{p.unit}}</div>
+									</li>
+								</ul>
+							</div>
+							<div v-if="indexs == 1" class="robot_con_parameter_tab_item clear">
+								<ul class="robot_con_parameter_tab_submue_item clear">
+									<li v-for="img in imgList">
+										<img :src="img.imgRoute | pictureUrl" />
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+		<template id="part">
+			<div v-if="part" class="robot_con">
+				<div class="robot_con_top swiper-container">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide" v-for="slide in imgList" :style="{ backgroundImage: 'url(http://irobot.0707app.com' + slide.imgRoute + ')' }"></div>
+					</div>
+					<div class="swiper-pagination swiper-pagination-white"></div>
+				</div>
+				<div class="robot_con_num clear">
+					<div class="robot_num">{{part.name}}</div>
+					<div class="robot_price">{{part.price | priceAddDelimiter}} 元</div>
+				</div>
+				<div @click="toandroid()" class="robot_con_apply part">
+					<div class="robot_con_apply_introduce">{{part.partsDetails}}</div>
+				</div>
+
+				<div class="robot_con_shop clear">
+					<router-link :to="'/shop/'+shop.id">
+						<div class="robot_con_shop_head">
+							<img :src="shop.imgPhoto | pictureUrl">
+						</div>
+						<div class="robot_con_shop_name">
+							<div class="robot_con_shop_name_top">{{shop.name}}</div>
+							<div class="robot_con_shop_name_bottom">{{shop.address}}</div>
+						</div>
+						<div class="robot_con_shop_to">
+							店铺
+							<img src="../img/to.png" />
+						</div>
+					</router-link>
+				</div>
+				<div class="robot_con_parameter">
+					<div class="robot_con_parameter_tab part">
+						<div class="robot_con_parameter_tab_mue clear">
+							<div class="robot_con_parameter_tab_mue_list">图文详情</div>
+						</div>
+						<div class="robot_con_parameter_tab_items">
+							<div class="robot_con_parameter_tab_item clear">
+								<ul>
+									<li v-for="img in imgList">
+										<div><img :src="img.imgRoute | pictureUrl" /></div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+		<template id="shop">
+			<div v-if="shop" class="shop_">
+				<div class="shop_top clear">
+					<div class="shop_top_pic">
+						<img :src="shop.imgPhoto | pictureUrl">
+					</div>
+					<div class="shop_top_con">
+						<div id="shop_name" class="shop_top_con_name">{{shop.name}}</div>
+						<div id="shop_add" class="shop_top_con_add">{{shop.address}}</div>
+					</div>
+				</div>
+				<hr />
+				<div id="introduce" class="shop_introduce clear">{{shop.shopProfile}}</div>
+				<hr />
+				<div class="shop_robot clear">
+					<ul class="shop_robot_list">
+						<li v-for="robot in robotList" class="shop_robot_item clear">
+							<router-link :to="'/robot/'+robot.id">
+								<div class="shop_robot_item_pic">
+									<img :src="robot.picture | pictureUrl" />
+								</div>
+								<div class="shop_robot_item_detail">
+									<h3>{{robot.name}}</h3>
+									<p class="cffa3a3">主要应用: <span id="">{{robot.classification.name}}</span></p>
+									<p>重量: {{robot.weight}}KG</p>
+									<p>工作区域: {{robot.workArea}}mm</p>
+								</div>
+							</router-link>
+						</li>
+						<li v-for="part in partList" class="shop_robot_item clear">
+							<router-link :to="'/part/'+part.id">
+								<div class="shop_robot_item_pic">
+									<img :src="part.picture | pictureUrl" />
+								</div>
+								<div class="shop_robot_item_detail">
+									<h3>{{part.name}}</h3>
+									<p class="cffa3a3">主要应用: <span id="">{{part.partsclass.name}}</span></p>
+								</div>
+							</router-link>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</template>
+
+		<template id="protocol">
+			<div class="protocol_con">
+				<div class="protocol_con_top">
+					<div class="protocol_con_top_text">{{title}}</div>
+					<div class="protocol_con_top_text_con">
+						<p class="protocol_text">{{con}}</p>
+						<p class="protocol_text">2、注册代表你同意本协议。</p>
+					</div>
+				</div>
+			</div>
+		</template>
+
+		<script src="https://cdn.bootcss.com/vue/2.4.4/vue.min.js"></script>
+		<script src="https://cdn.bootcss.com/vue-resource/1.3.4/vue-resource.min.js"></script>
+		<script src="https://cdn.bootcss.com/vue-router/2.7.0/vue-router.min.js"></script>
+		<script src="https://cdn.bootcss.com/Swiper/4.0.1/js/swiper.min.js"></script>
+		<script src="../js/vue-awesome-swiper.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			Vue.use(window.VueAwesomeSwiper);
+			const androidOrIOS = function(title) {
+				var u = navigator.userAgent;
+				var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+				var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+				if(isAndroid) {
+					android.setAppTitle(title);
+				}
+				if(isiOS) {
+					setAppTitleiOS(title);
+				}
+			}
+			// 1. 定义（路由）组件。
+			const Robot = {
+				template: '#robot',
+				data: function() {
+					return {
+						robot: null,
+						imgList: null,
+						parametersList: null,
+						btn: {
+							a: "设备参数",
+							b: "图文详情"
+						},
+						indexs: 0,
+						tab: function(str) {
+							this.indexs = str;
+						}
+					}　　
+				},
+				created: function() {
+					this.getRobot()
+				},
+				watch: {
+					'$route': 'getRobot'
+				},
+				filters: {
+					priceAddDelimiter: function(num) { //价格增加千位分隔符
+						return(num || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
+					},
+					pictureUrl: function(picture) { //修改图片地址
+						return "http://irobot.0707app.com" + picture;
+					}
+				},
+				methods: {
+					getRobot: function(id) {
+						var self = this;
+						this.$http.get('http://irobot.0707app.com/robot/tofindDetail', {
+							params: {
+								id: this.$route.params.id
+							}
+						}).then(function(res) {
+							self.robot = res.body.robot;
+							self.imgList = res.body.imgRobotList;
+							self.parametersList = res.body.parametersList;
+						}, function() {
+							console.log('请求失败处理');
+						});
+						androidOrIOS("机器人详情");
+					}
+				}
+			};
+			const Part = {
+				template: '#part',
+				data: function() {
+					return {
+						part: null,
+						imgList: null,
+						shop: null
+					}　　
+				},
+				created: function() {
+					this.getPart()
+				},
+				watch: {
+					'$route': 'getPart'
+				},
+				filters: {
+					priceAddDelimiter: function(num) { //价格增加千位分隔符
+						return(num || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
+					},
+					pictureUrl: function(picture) { //修改图片地址
+						return "http://irobot.0707app.com" + picture;
+					}
+				},
+				methods: {
+					getPart: function(id) {
+						var self = this;
+						this.$http.get('http://irobot.0707app.com/part/tofindDetail', {
+							params: {
+								id: this.$route.params.id
+							}
+						}).then(function(res) {
+							self.part = res.body.part;
+							self.imgList = res.body.date;
+							self.shop = res.body.shop;
+						}, function() {
+							console.log('请求失败处理');
+						});
+						androidOrIOS("配件详情");
+					}
+				}
+			};
+			const Shop = {
+				template: '#shop',
+				data: function() {
+					return {
+						shop: null,
+						robotList: null,
+						partList: null
+					}　　
+				},
+				created: function() {
+					this.getShop()
+				},
+				watch: {
+					'$route': 'getShop'
+				},
+				filters: {
+					pictureUrl: function(picture) { //修改图片地址
+						return "http://irobot.0707app.com" + picture;
+					}
+				},
+				methods: {
+					getShop: function() {
+						var self = this;
+						this.$http.get('http://irobot.0707app.com/shop/tofindDetail', {
+							params: {
+								id: this.$route.params.id
+							}
+						}).then(function(res) {
+							self.shop = res.body.shop;
+							self.robotList = res.body.robotList;
+							self.partList = res.body.partList;
+						}, function() {
+							console.log('请求失败处理');
+						});
+						androidOrIOS("店铺详情");
+					}
+				}
+			};
+			const Protocol = {
+				template: '#protocol',
+				data: function() {
+					return {
+						title: "查看工程师次数说明",
+						con: "1、请用户仔细阅读以下全部内容。如用户不同意本服务条款任意内容，请不要注册或使用机器人平台服务。。。"
+					}　　
+				},
+				created: function() {
+					//this.getProtocol()
+				},
+				watch: {
+					//'$route': 'getProtocol'
+				},
+				filters: {
+					pictureUrl: function(picture) { //修改图片地址
+						return "http://irobot.0707app.com" + picture;
+					}
+				},
+				methods: {
+					getProtocol: function() {
+						var self = this;
+						this.$http.get('http://irobot.0707app.com/shop/tofindDetail', {
+							params: {
+								id: this.$route.params.id
+							}
+						}).then(function(res) {
+							self.shop = res.body.shop;
+							self.robotList = res.body.robotList;
+							self.partList = res.body.partList;
+						}, function() {
+							console.log('请求失败处理');
+						});
+					}
+				}
+			}
+
+			// 2. 定义路由
+			const routes = [{
+					path: '/robot/:id',
+					name: 'robot',
+					component: Robot
+				},
+				{
+					path: '/shop/:id',
+					name: 'shop',
+					component: Shop,
+				},
+				{
+					path: '/part/:id',
+					component: Part
+				},
+				{
+					path: '/protocol/:id',
+					component: Protocol
+				},
+
+			]
+
+			// 3. 创建 router 实例，然后传 `routes` 配置
+			const router = new VueRouter({
+				routes // （缩写）相当于 routes: routes
+			})
+
+			// 4. 创建和挂载根实例。
+			// 记得要通过 router 配置参数注入路由，
+			// 从而让整个应用都有路由功能
+			const app = new Vue({
+				router
+			}).$mount('#detail')
+
+			// 现在，应用已经启动了！
+		</script>
+	</body>
+
+</html>
